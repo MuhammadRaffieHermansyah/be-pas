@@ -40,7 +40,7 @@ class MovieApiController extends Controller
             'image' => $request->image
         ]);
 
-        if($request->file('image')){
+        if ($request->file('image')) {
             $validated['image'] = $request->file('image')->store('movie_image');
         }
         return response()->json([
@@ -76,13 +76,16 @@ class MovieApiController extends Controller
         $movie->synopsis = $request->synopsis;
         $movie->year = $request->year;
         $movie->image = $request->image;
-        if($request->file('image')){
-            if($movie->image){
+
+        if ($request->file('image')) {
+            if ($movie->image) {
                 Storage::delete($movie->image);
             }
             $validated['image'] = $request->file('image')->store('movie_image');
         }
+
         $movie->save();
+
         return response()->json([
             'data' => $movie
         ]);
@@ -96,6 +99,6 @@ class MovieApiController extends Controller
         $movie->delete();
         return response()->json([
             'message' => 'Successfully Delete Movie'
-        ] , 204);
+        ], 204);
     }
 }

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->integer('duration');
             $table->text('synopsis');
             $table->integer('year');
-            $table->string('image');
+            $table->string('image')->nullable();
             $table->timestamps();
         });
     }

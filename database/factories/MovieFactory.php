@@ -17,7 +17,11 @@ class MovieFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'name' => fake()->name(),
+            'duration' => fake()->year(),
+            'synopsis' => fake()->paragraph(),
+            'year' => fake()->year(),
+            'image' => fake()->imageUrl(),
         ];
     }
 }
