@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Movie;
 use App\Http\Requests\StoreMovieRequest;
 use App\Http\Requests\UpdateMovieRequest;
+use Illuminate\Auth\Events\Validated;
 use Illuminate\Support\Facades\Storage;
 
 class MovieApiController extends Controller
@@ -14,7 +15,8 @@ class MovieApiController extends Controller
      */
     public function index()
     {
-        $movies = Movie::paginate(10);
+        $movies = Movie::paginate(100);
+        // $movies->image = asset('movie_image/' , $movies->name);
         return response()->json([
             'data' => $movies
         ]);
@@ -32,17 +34,19 @@ class MovieApiController extends Controller
      */
     public function store(StoreMovieRequest $request)
     {
-        $movie = Movie::create([
-            'name' => $request->name,
-            'duration' => $request->duration,
-            'synopsis' => $request->synopsis,
-            'year' => $request->year,
-            'image' => $request->image
+        $validated = $request->validate([
+            'name' => 'required|max:255',
+            'duration' => 'required',
+            'synopsis' => 'required',
+            'image' => 'image|file|max:6240',
+            'year' => 'required',
         ]);
 
+
         if($request->file('image')){
-            $validated['image'] = $request->file('image')->store('movie_image');
+            $validated['image'] = $request->file('image')->store('movie-images');
         }
+        $movie = Movie::create($validated);
         return response()->json([
             'data' => $movie
         ]);
@@ -71,18 +75,22 @@ class MovieApiController extends Controller
      */
     public function update(UpdateMovieRequest $request, Movie $movie)
     {
-        $movie->name = $request->name;
-        $movie->duration = $request->duration;
-        $movie->synopsis = $request->synopsis;
-        $movie->year = $request->year;
-        $movie->image = $request->image;
+        $validated = $request->validate([
+            'name' => 'required|max:255',
+            'duration' => 'required',
+            'synopsis' => 'required',
+            'image' => 'image|file|max:6240',
+            'year' => 'required',
+        ]);
         if($request->file('image')){
             if($movie->image){
                 Storage::delete($movie->image);
             }
             $validated['image'] = $request->file('image')->store('movie_image');
         }
-        $movie->save();
+
+        $movie = Movie::where('id', $movie->id)
+            ->update($validated);
         return response()->json([
             'data' => $movie
         ]);
@@ -93,7 +101,11 @@ class MovieApiController extends Controller
      */
     public function destroy(Movie $movie)
     {
-        $movie->delete();
+        if ($movie->image) {
+            Storage::delete($movie->image);
+        }
+
+        Movie::destroy($movie->id);
         return response()->json([
             'message' => 'Successfully Delete Movie'
         ] , 204);

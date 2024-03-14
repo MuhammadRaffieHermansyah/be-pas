@@ -9,6 +9,10 @@ class Movie extends Model
 {
     use HasFactory;
 
+    // public function getImageAttribute(){
+    //     return asset("movie_image/" .$this->attributes["image"]);
+    //     }
+
 
     protected $fillable = [
         'name',
