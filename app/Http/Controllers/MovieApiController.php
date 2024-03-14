@@ -5,8 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Movie;
 use App\Http\Requests\StoreMovieRequest;
 use App\Http\Requests\UpdateMovieRequest;
-use Illuminate\Auth\Events\Validated;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator as validator;
+
 
 class MovieApiController extends Controller
 {
@@ -42,6 +43,13 @@ class MovieApiController extends Controller
             'year' => 'required',
         ]);
 
+        // $validator = validator::make($request->all(), [
+        //     'name' => 'required|max:255',
+        //     'duration' => 'required',
+        //     'synopsis' => 'required',
+        //     'image' => 'image|file|max:6240',
+        //     'year' => 'required',
+        // ]);
 
         if($request->file('image')){
             $validated['image'] = $request->file('image')->store('movie-images');
@@ -75,6 +83,13 @@ class MovieApiController extends Controller
      */
     public function update(UpdateMovieRequest $request, Movie $movie)
     {
+        // $validator = validator::make($request->all(), [
+        //     'name' => 'required|max:255',
+        //     'duration' => 'required',
+        //     'synopsis' => 'required',
+        //     'image' => 'image|file|max:6240',
+        //     'year' => 'required',
+        // ]);
         $validated = $request->validate([
             'name' => 'required|max:255',
             'duration' => 'required',
@@ -82,6 +97,9 @@ class MovieApiController extends Controller
             'image' => 'image|file|max:6240',
             'year' => 'required',
         ]);
+        // if ($validator->fails()) {
+        //     return response()->json($validator->errors(), 422);
+        // }
         if($request->file('image')){
             if($movie->image){
                 Storage::delete($movie->image);
